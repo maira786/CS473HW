@@ -5,3 +5,14 @@ footer {
 .initiate button {
   cursor: pointer;
 }
+html
+{
+	margin: 20px;
+}
+.output_1
+{
+	margin-left: 50px;
+	font-size: medium;
+	background: ivory;
+	max-width: 200px;
+}
