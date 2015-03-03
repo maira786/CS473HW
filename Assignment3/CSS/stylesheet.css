@@ -2,17 +2,37 @@ footer {
     font-size: smaller;
     margin-top: 5px;
 }
-.initiate button {
+.initiate_1 button, .initiate_2 button, .initiate_3 button {
   cursor: pointer;
 }
 html
 {
 	margin: 20px;
 }
-.output_1
+.output
 {
 	margin-left: 50px;
 	font-size: medium;
 	background: ivory;
 	max-width: 200px;
+}
+.initiate_1
+{
+	background-color: #FFDAB9;
+	padding: 15px;
+}
+.initiate_2
+{
+	background-color: #E9967A;
+	padding: 15px;
+}
+.initiate_3
+{
+	background-color: #F08080;
+	padding: 15px;
+}
+.initiate_4
+{
+	background-color: #CD5C5C;
+	padding: 15px;
 }
