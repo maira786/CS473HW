@@ -1,11 +1,39 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title><%= title %></title>
+    <title>Let's Play</title>
     <link rel='stylesheet' href='/stylesheets/style.css' />
+    <script src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
+  <!--<script src="gamerules.js" type="text/javascript"></script-->
   </head>
   <body>
     <h1><%= title %></h1>
-    <p>Welcome to <%= title %></p>
+    
+<form method='POST' action='/play/rock'>
+      <div class="rockButton">
+      <button>Rock</button>
+     </div>
+  </form>
+
+	<form method='POST' action='/play/paper'>
+    	<input type='submit' value='paper'>
+	</form>
+	<form method='POST' action='/play/scissors'>
+    	<input type='submit' value='scissors'>
+	</form>
+	<form method='POST' action='/play/lizard'>
+    	<input type='submit' value='lizard'>
+	</form>
+    <form method='POST' action='/play/spock'>
+    	<input type='submit' value='spock'>
+	</form>
+
+  <div class='score'>
+        <h3>Your Move: <%= title %></h3>
+        <h2>Comp Move: </h2>
+        <h1>Winner: </h1>
+  </div>
+
+  
   </body>
 </html>
