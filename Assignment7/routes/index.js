@@ -8,7 +8,6 @@ router.get('/', function(req, res, next) {
 
 /* POST the results. */
 router.post('/', function(req, res, next){
-	res.render('result', {id:"01", base: "hello"});
 });
 
 module.exports = router;

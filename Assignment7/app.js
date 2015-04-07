@@ -11,14 +11,7 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var redis = require("redis");
 var shortid = require('shortid');
-//var client = redis.createClient(3000, "localhost");
-/*if (process.env.REDISTOGO_URL) {
-    var rtg  = require("url").parse(process.env.REDISTOGO_URL);
-    var client = require("redis").createClient(3000, 'localhost');
-    client.auth(rtg.auth.split(":")[1]);
-} else {
-    var client = require('redis').createClient();
-}*/
+var client = redis.createClient();
 
 var app = express();
 
@@ -51,34 +44,36 @@ app.get('/', function(req, res) {
 app.post('/', function(req, res){
   var input;
   input = req.body.url; //gets the link in the body of the request
+  var output;
 
-  /*////////////////////////////*/
-//  var extension = encode(client);
-//var extension = encode(myUrl);
- // var manipulatedURL= '';
-  //manipulatedURL.append(input, extension);
 
- // client.set('short:' + extension, input);
- // client.setnx('long:' + input, manipulatedURL);
-
- // client.set(myUrl, extension, function () {
-    var extension = shortid.generate();
+  var extension = shortid.generate();
+  output = myUrl.concat(extension);
+  client.set(input, output, function(err, reply)
+  {
+    console.log(reply);
     res.render('result', {myUrl: myUrl, extension: extension});
-  //});
+  });
+  client.set(output, input);
+  client.set(extension, input);
+
 });
+/*doesnt work :( */
 app.route('/:extension').all(function(req, res){
   var extension = req.params.extension.trim();
-  res.status(301);
-  res.set('Location', reply);
-  res.send();
 
+  client.get(extension, function(err, reply){
+    res.status(301);
+    res.set('Location', reply);
+    res.send();
+  });
 });
 /*
 //var encode = function (client){
 var encode = function (myUrl){
- //   client.setnx('next', init_key);
+    client.setnx('next', init_key);
     var incr= Math.floor(Math.random()*11); //generates randome number from 0 to 10
-//    value = client.incr('next', incr);
+    value = client.incr('next', incr);
     value = incr;
     console.log("in the encode function");
     return base36encode(value);
