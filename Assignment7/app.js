@@ -69,14 +69,11 @@ app.post('/', function(req, res){
             //set short id -> long url
             client.set(extension, input);
             //print out output with the short url
-
-            client.zadd('hits', 0, output);
-            
             res.render('result', {myUrl: output});
         });
     }
   });
-  client.zrange('hits',0,-1);
+  //doesnt work: client.zrange('hits',0,-1);
 
 });
 
@@ -87,16 +84,11 @@ app.route('/:extension').all(function(req, res){
   //get the actual link from Redis
   client.get(extension, function(err, reply){
     res.status(301);
-    client.set('hits', 0, output, function()
-      {
-        client.incr('hits', function(err, reply)
-        {
-            console.log(reply);
-        });
-      });
-    //doesnt work //client.zincrby('hits', 1, link);
+
+    //doesnt work //client.zincrby('hits', 1, extension);
     //var popular = client.zrevrange('hits', 0, 9, withscores=True);
     //console.log(popular);
+    
     //set the location from the redis's reply
     res.set('Location', reply);
     res.send();
