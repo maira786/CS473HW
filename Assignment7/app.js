@@ -46,63 +46,63 @@ app.post('/', function(req, res){
   input = req.body.url; //gets the link in the body of the request
   var output;
 
+  //check if output key already exists
+  client.exists(input, function(err, reply) {
+    if (reply === 1) {
+        //the url inputed exsists in redis
+        client.get(input, function(err, reply)
+        {
+          //ouput the result from the database
+          res.render('result', {myUrl: reply});
+        });
+    } else {
+        //the url is new, so generate its short value
+        var extension = shortid.generate();
+        var extensionOutput;
+        extensionOutput = "/" + extension;
+        //format the url like so http://www.localhost:3000/xxxxxx
+        output = myUrl.concat(extensionOutput);
+        //set long url -> short url
+        client.set(input, output, function(err, reply){
+            //set short url -> long url
+            client.set(output, input);
+            //set short id -> long url
+            client.set(extension, input);
+            //print out output with the short url
 
-  var extension = shortid.generate();
-  output = myUrl.concat(extension);
-  client.set(input, output, function(err, reply)
-  {
-    console.log(reply);
-    res.render('result', {myUrl: myUrl, extension: extension});
+            client.zadd('hits', 0, output);
+            
+            res.render('result', {myUrl: output});
+        });
+    }
   });
-  client.set(output, input);
-  client.set(extension, input);
+  client.zrange('hits',0,-1);
 
 });
-/*doesnt work :( */
+
+//display the actual link
 app.route('/:extension').all(function(req, res){
   var extension = req.params.extension.trim();
 
+  //get the actual link from Redis
   client.get(extension, function(err, reply){
     res.status(301);
+    client.set('hits', 0, output, function()
+      {
+        client.incr('hits', function(err, reply)
+        {
+            console.log(reply);
+        });
+      });
+    //doesnt work //client.zincrby('hits', 1, link);
+    //var popular = client.zrevrange('hits', 0, 9, withscores=True);
+    //console.log(popular);
+    //set the location from the redis's reply
     res.set('Location', reply);
     res.send();
   });
 });
-/*
-//var encode = function (client){
-var encode = function (myUrl){
-    client.setnx('next', init_key);
-    var incr= Math.floor(Math.random()*11); //generates randome number from 0 to 10
-    value = client.incr('next', incr);
-    value = incr;
-    console.log("in the encode function");
-    return base36encode(value);
-};
-function base36encode(number){
-    var alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    var base36 = '';
-    var sign = '';
-    var i;
 
-    if (number < 0){
-      sign = '-';
-      number = -number;
-    }
-
-    if (0 <= number && number< alphabet.length){
-      return sign.append(alphabet[number]);
-    }
-
-    while (number !== 0){
-      number = number/ alphabet.length;
-      i = number % alphabet.length;     
-      base36.append(alphabet[i], base36);
-    }
-    var output= sign;
-    output = output.append(base36);
-    console.log(base36);
-    return output;
-}*/
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   var err = new Error('Not Found');
