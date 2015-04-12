@@ -18,12 +18,8 @@ var db = mongoose.connection;
 
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function (callback) {
-  // yay!
-  console.log("yay");
+  console.log("DB Connection On");
 });
-
-//var redis = require("redis");
-//var client = redis.createClient();
 
 var app = express();
 
@@ -51,40 +47,6 @@ var linksSchema = new mongoose.Schema({
 });
 
 var link = mongoose.model('link', linksSchema);
-/*
-var input = new link({ inputLink: 'blah', outputLink: 'www.blah.com', clickedCount: 0 });
-input.save(function(err)
-{
-  if (err){
-    console.log('couldnt save');
-  }
-  else
-  {
-    console.log('aparently saved');
-  }
-});
-var input = new link({ inputLink: 'aslah', outputLink: 'www.aslah.com', clickedCount: 0 });
-input.save(function(err)
-{
-  if (err){
-    console.log('couldnt save');
-  }
-  else
-  {
-    console.log('aparently saved');
-  }
-});
-console.log(link.shortLink); // 'Silence'
-
-var query = link.find({'inputLink': 'aslah'}).exec(function(err, result) {
-  if (!err) {
-    console.log(result);
-  } else {
-      console.log('Error in matching input in query. ' + err);
-  }
-});*/
-
-
 
 /* GET home page. */
 app.get('/', function(req, res) {
@@ -96,55 +58,51 @@ app.post('/', function(req, res){
   var input;
   input = req.body.url; //gets the link in the body of the request
   var output;
-  console.log('input the user entered: '+ input);
 
-  // find each link with the same input
+  // find a link with the same input, and do not display "_id"
   var query = link.findOne({ 'inputLink': input }, {_id:0});
 
-  // select the two fields
-  query.select('inputLink outputLink');
+  // select the two fields that will be shown to query
+  query.select('inputLink outputLink clickedCount');
 
-  // execute the query
+  // execute the query and check for errors
   query.exec(function (err, result) {
     if (err || !result){
-      console.log('Couldnt find the matching input');
-
+      //if error, or the result was not found(the input link was not in the DB)
       var extension = shortid.generate();
       var extensionOutput = "/" + extension;
       console.log('added extension short id: '+ extensionOutput);
       //format the url like so http://www.localhost:3000/xxxxxx
       output = myUrl.concat(extensionOutput);
-      console.log('output to put in db: '+output);
+      //short to long
       var entry = new link({ inputLink: input, outputLink: output, shortid: extension, clickedCount: 0 });
+      //long to short
       var entrytwo = new link({ inputLink: output, outputLink: input, shortid: extension, clickedCount: 0 });
       entry.save(function(err){
         if (err){
-          console.log('couldnt save');
-        }else{
-          console.log('aparently saved');
+          console.log('The link was not stored in the DB');
         }
       });
       entrytwo.save(function(err){
         if (err){
-          console.log('couldnt save');
-        }else{
-          console.log('aparently saved');
+          console.log('The link was not stored in the DB');
         }
       });
       res.render('result', {myUrl: output});
     } else{
-      //already in the DB
-      link.update({inputLink: input}, {$set: {clickedCount: 1}}, function(err, updated) {
-        if( err || !updated ) console.log("clicked count not updated");
-        else console.log("count updated");
+      //the link the user inputed, already exsists in the DB
+
+      //convert the result that the db provided into a json object
+      var objJSON = eval("(function(){return" + result + ";})()");
+      res.render('result', {myUrl: objJSON.outputLink});
+      var count = objJSON.clickedCount;
+      count+=1;
+      //for the inputed link, update(set) it clicked count up
+      link.update({inputLink: input}, {$set: {clickedCount: count}}, function(err, updated) {
+        if( err || !updated ){
+          console.log("clicked count not updated");
+        }
       });
-      //console.log('%s is %s.', link.inputLink, link.outputLink); 
-       console.log('result', result);
-       //var strJSON = '{"result":true,"count":1}';
-        var objJSON = eval("(function(){return" + result + ";})()");
-      // var jsonObject = result;
-       //console.log('output iss...'+ objJSON.outputLink);
-       res.render('result', {myUrl: objJSON.outputLink});
     }
   });
 
