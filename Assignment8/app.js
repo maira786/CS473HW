@@ -141,9 +141,10 @@ app.post('/', function(req, res){
       //console.log('%s is %s.', link.inputLink, link.outputLink); 
        console.log('result', result);
        //var strJSON = '{"result":true,"count":1}';
-        var objJSON = eval("(function(){return " + result + ";})()");
+        var objJSON = eval("(function(){return" + result + ";})()");
       // var jsonObject = result;
-       console.log('output iss...'+ objJSON.outputLink);
+       //console.log('output iss...'+ objJSON.outputLink);
+       res.render('result', {myUrl: objJSON.outputLink});
     }
   });
 
