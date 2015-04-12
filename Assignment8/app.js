@@ -108,7 +108,7 @@ var setLink = function(err, linkFound){
     console.log('link doesnt exist yet');
   } else {
     // user found, do something with userFound
-    console.log(linkFound);  // this should print the user object
+    console.log('linkfound: ' + linkFound);  // this should print the user object
   }
 };
 
@@ -151,7 +151,8 @@ var setLink = function(err, linkFound){
     // execute the query
     query.exec(function (err, result) {
       if (err) return console.log(err);
-      console.log('%s is %s.', result.inputLink, result.outputLink); 
+      console.log('%s is %s.', link.inputLink, link.outputLink); 
+      console.log('result', result);
     });
 
     res.render('result', {myUrl: output});
