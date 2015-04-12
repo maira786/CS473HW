@@ -1,6 +1,6 @@
 /*
 run the app:
-     $ DEBUG=Assignment7:* ./bin/www
+     $ DEBUG=Assignment8:* ./bin/www
 */
 
 var express = require('express');
@@ -9,8 +9,20 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-var redis = require("redis");
 var shortid = require('shortid');
+var mongoose = require('mongoose');
+
+//using mongo lab to host the database 
+mongoose.connect('mongodb://assignment8:avery@ds061641.mongolab.com:61641/assignment8');
+var db = mongoose.connection;
+
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', function (callback) {
+  // yay!
+  console.log("yay");
+});
+
+var redis = require("redis");
 var client = redis.createClient();
 
 var app = express();
