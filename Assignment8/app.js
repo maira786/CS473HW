@@ -98,19 +98,37 @@ app.post('/', function(req, res){
   var output;
   console.log('input the user entered: '+ input);
 
-link.findOne({'outputLink': input}, setLink);
+  // find each link with the same input
+  var query = link.findOne({ 'inputLink': input });
 
-var setLink = function(err, linkFound){
+  // select the two fields
+  query.select('inputLink outputLink');
 
-  if (err) return handleError(err);
-  if (!linkFound) {
-    // inform caller that no user found
-    console.log('link doesnt exist yet');
-  } else {
-    // user found, do something with userFound
-    console.log('linkfound: ' + linkFound);  // this should print the user object
-  }
-};
+  // execute the query
+  query.exec(function (err, result) {
+    if (err || !result){
+      console.log('Couldnt find the matching input');
+
+      var extension = shortid.generate();
+      var extensionOutput = "/" + extension;
+      console.log('added extension short id: '+ extensionOutput);
+      //format the url like so http://www.localhost:3000/xxxxxx
+      output = myUrl.concat(extensionOutput);
+      console.log('output to put in db: '+output);
+      var entry = new link({ inputLink: input, outputLink: output, shortid: extension, clickedCount: 0 });
+      entry.save(function(err){
+        if (err){
+          console.log('couldnt save');
+        }else{
+          console.log('aparently saved');
+        }
+      });
+      res.render('result', {myUrl: output});
+    } else{
+      //console.log('%s is %s.', link.inputLink, link.outputLink); 
+      console.log('result', result);
+    }
+  });
 
 /*  //check if output key already exists
   client.exists(input, function(err, reply) {
@@ -123,41 +141,8 @@ var setLink = function(err, linkFound){
         });
     } else { */
         //the url is new, so generate its short value
-        var extension = shortid.generate();
-        var extensionOutput = "/" + extension;
-        console.log('added extension short id: '+ extensionOutput);
-        //format the url like so http://www.localhost:3000/xxxxxx
-        output = myUrl.concat(extensionOutput);
-        console.log('output to put in db: '+output);
-        var entry = new link({ inputLink: input, outputLink: output, shortid: extension, clickedCount: 0 });
-        entry.save(function(err)
-        {
-          if (err){
-            console.log('couldnt save');
-          }
-          else
-          {
-            console.log('aparently saved');
-          }
-        });
-   
-
-    // find each link with the same input
-    var query = link.findOne({ 'inputLink': input });
-
-    // select the two fields
-    query.select('inputLink outputLink');
-
-    // execute the query
-    query.exec(function (err, result) {
-      if (err) return console.log(err);
-      console.log('%s is %s.', link.inputLink, link.outputLink); 
-      console.log('result', result);
-    });
-
-    res.render('result', {myUrl: output});
-    
-  });
+        
+});
 
 //display the actual link
 app.route('/:extension').all(function(req, res){
