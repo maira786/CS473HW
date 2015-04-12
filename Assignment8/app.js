@@ -97,6 +97,21 @@ app.post('/', function(req, res){
   input = req.body.url; //gets the link in the body of the request
   var output;
   console.log('input the user entered: '+ input);
+
+link.findOne({'outputLink': input}, setLink);
+
+var setLink = function(err, linkFound){
+
+  if (err) return handleError(err);
+  if (!linkFound) {
+    // inform caller that no user found
+    console.log('link doesnt exist yet');
+  } else {
+    // user found, do something with userFound
+    console.log(linkFound);  // this should print the user object
+  }
+};
+
 /*  //check if output key already exists
   client.exists(input, function(err, reply) {
     if (reply === 1) {
@@ -114,7 +129,7 @@ app.post('/', function(req, res){
         //format the url like so http://www.localhost:3000/xxxxxx
         output = myUrl.concat(extensionOutput);
         console.log('output to put in db: '+output);
-        var entry = new link({ inputLink: input, outputLink: output, clickedCount: 0 });
+        var entry = new link({ inputLink: input, outputLink: output, shortid: extension, clickedCount: 0 });
         entry.save(function(err)
         {
           if (err){
@@ -134,46 +149,34 @@ app.post('/', function(req, res){
     query.select('inputLink outputLink');
 
     // execute the query
-    query.exec(function (err, link) {
+    query.exec(function (err, result) {
       if (err) return console.log(err);
-      console.log('%s is %s.', link.inputLink, link.outputLink); // Space Ghost is a talk show host.
+      console.log('%s is %s.', result.inputLink, result.outputLink); 
     });
 
     res.render('result', {myUrl: output});
-
-        /*
-        //set long url -> short url
-            client.set(input, output, function(err, reply){
-            //set short url -> long url
-            client.set(output, input);
-            //set short id -> long url
-            client.set(extension, input);
-            //print out output with the short url
-            res.render('result', {myUrl: output});
- /*       });
-    }
+    
   });
-  //doesnt work: client.zrange('hits',0,-1);
-*/
-});
 
 //display the actual link
 app.route('/:extension').all(function(req, res){
   var extension = req.params.extension.trim();
 
+  // find each link with the same input
+    var query = link.findOne({ 'shortid': extension });
 
-  //get the actual link from Redis
-/*  client.get(extension, function(err, reply){
-    res.status(301);
+    // select the two fields
+    query.select('inputLink');
 
-    //doesnt work //client.zincrby('hits', 1, extension);
-    //var popular = client.zrevrange('hits', 0, 9, withscores=True);
-    //console.log(popular);
-    
-    //set the location from the redis's reply
-    res.set('Location', reply);
-    res.send();
-  });*/
+    // execute the query
+    query.exec(function (err, result) {
+    //  res.status(301);
+      if (err) return console.log(err);
+     // res.set('Location', link.inputLink);
+      //res.send();
+      res.writeHead(301, {Location: link.inputLink});
+      res.end();
+    });
   
 });
 
