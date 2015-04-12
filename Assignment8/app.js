@@ -116,7 +116,15 @@ app.post('/', function(req, res){
       output = myUrl.concat(extensionOutput);
       console.log('output to put in db: '+output);
       var entry = new link({ inputLink: input, outputLink: output, shortid: extension, clickedCount: 0 });
+      var entrytwo = new link({ inputLink: output, outputLink: input, shortid: extension, clickedCount: 0 });
       entry.save(function(err){
+        if (err){
+          console.log('couldnt save');
+        }else{
+          console.log('aparently saved');
+        }
+      });
+      entrytwo.save(function(err){
         if (err){
           console.log('couldnt save');
         }else{
@@ -125,8 +133,13 @@ app.post('/', function(req, res){
       });
       res.render('result', {myUrl: output});
     } else{
+      //already in the DB
+      link.update({inputLink: input}, {$set: {clickedCount: 1}}, function(err, updated) {
+        if( err || !updated ) console.log("clicked count not updated");
+        else console.log("count updated");
+      });
       //console.log('%s is %s.', link.inputLink, link.outputLink); 
-      console.log('result', result);
+       console.log('result', result);
     }
   });
 
