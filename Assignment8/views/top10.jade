@@ -1,0 +1,18 @@
+extends result
+
+block content
+    div.container
+    div.row
+        h1 URL Manipulation
+        h3 Top 10 Most Visited Links
+
+    div.row
+        ul
+        	each link, index in links
+        		li = link.clickedCount+ ': ' + link.inputLink + ' -> ' + link.outputLink
+
+
+        		<!--h3 Top 10 Most Visited Links
+				ul
+		        	each link, index in links #{links}
+		        		li = link.clickedCount+ ': ' + link.inputLink + ' -> ' + link.outputLink -->

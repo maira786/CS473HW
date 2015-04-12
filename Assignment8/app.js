@@ -22,8 +22,8 @@ db.once('open', function (callback) {
   console.log("yay");
 });
 
-var redis = require("redis");
-var client = redis.createClient();
+//var redis = require("redis");
+//var client = redis.createClient();
 
 var app = express();
 
@@ -43,9 +43,48 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+var linksSchema = new mongoose.Schema({
+    inputLink: String,
+    outputLink: String,
+    shortid: String,
+    clickedCount: Number
+});
 
-//var init_key= 10* 36 ** 3;
-var init_key= 10* 36 * 3;
+var link = mongoose.model('link', linksSchema);
+/*
+var input = new link({ inputLink: 'blah', outputLink: 'www.blah.com', clickedCount: 0 });
+input.save(function(err)
+{
+  if (err){
+    console.log('couldnt save');
+  }
+  else
+  {
+    console.log('aparently saved');
+  }
+});
+var input = new link({ inputLink: 'aslah', outputLink: 'www.aslah.com', clickedCount: 0 });
+input.save(function(err)
+{
+  if (err){
+    console.log('couldnt save');
+  }
+  else
+  {
+    console.log('aparently saved');
+  }
+});
+console.log(link.shortLink); // 'Silence'
+
+var query = link.find({'inputLink': 'aslah'}).exec(function(err, result) {
+  if (!err) {
+    console.log(result);
+  } else {
+      console.log('Error in matching input in query. ' + err);
+  }
+});*/
+
+
 
 /* GET home page. */
 app.get('/', function(req, res) {
@@ -57,8 +96,8 @@ app.post('/', function(req, res){
   var input;
   input = req.body.url; //gets the link in the body of the request
   var output;
-
-  //check if output key already exists
+  console.log('input the user entered: '+ input);
+/*  //check if output key already exists
   client.exists(input, function(err, reply) {
     if (reply === 1) {
         //the url inputed exsists in redis
@@ -67,34 +106,64 @@ app.post('/', function(req, res){
           //ouput the result from the database
           res.render('result', {myUrl: reply});
         });
-    } else {
+    } else { */
         //the url is new, so generate its short value
         var extension = shortid.generate();
-        var extensionOutput;
-        extensionOutput = "/" + extension;
+        var extensionOutput = "/" + extension;
+        console.log('added extension short id: '+ extensionOutput);
         //format the url like so http://www.localhost:3000/xxxxxx
         output = myUrl.concat(extensionOutput);
+        console.log('output to put in db: '+output);
+        var entry = new link({ inputLink: input, outputLink: output, clickedCount: 0 });
+        entry.save(function(err)
+        {
+          if (err){
+            console.log('couldnt save');
+          }
+          else
+          {
+            console.log('aparently saved');
+          }
+        });
+   
+
+    // find each link with the same input
+    var query = link.findOne({ 'inputLink': input });
+
+    // select the two fields
+    query.select('inputLink outputLink');
+
+    // execute the query
+    query.exec(function (err, link) {
+      if (err) return console.log(err);
+      console.log('%s is %s.', link.inputLink, link.outputLink); // Space Ghost is a talk show host.
+    });
+
+    res.render('result', {myUrl: output});
+
+        /*
         //set long url -> short url
-        client.set(input, output, function(err, reply){
+            client.set(input, output, function(err, reply){
             //set short url -> long url
             client.set(output, input);
             //set short id -> long url
             client.set(extension, input);
             //print out output with the short url
             res.render('result', {myUrl: output});
-        });
+ /*       });
     }
   });
   //doesnt work: client.zrange('hits',0,-1);
-
+*/
 });
 
 //display the actual link
 app.route('/:extension').all(function(req, res){
   var extension = req.params.extension.trim();
 
+
   //get the actual link from Redis
-  client.get(extension, function(err, reply){
+/*  client.get(extension, function(err, reply){
     res.status(301);
 
     //doesnt work //client.zincrby('hits', 1, extension);
@@ -104,7 +173,8 @@ app.route('/:extension').all(function(req, res){
     //set the location from the redis's reply
     res.set('Location', reply);
     res.send();
-  });
+  });*/
+  
 });
 
 // catch 404 and forward to error handler
