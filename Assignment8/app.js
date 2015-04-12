@@ -99,7 +99,7 @@ app.post('/', function(req, res){
   console.log('input the user entered: '+ input);
 
   // find each link with the same input
-  var query = link.findOne({ 'inputLink': input });
+  var query = link.findOne({ 'inputLink': input }, {_id:0});
 
   // select the two fields
   query.select('inputLink outputLink');
@@ -140,6 +140,10 @@ app.post('/', function(req, res){
       });
       //console.log('%s is %s.', link.inputLink, link.outputLink); 
        console.log('result', result);
+       //var strJSON = '{"result":true,"count":1}';
+        var objJSON = eval("(function(){return " + result + ";})()");
+      // var jsonObject = result;
+       console.log('output iss...'+ objJSON.outputLink);
     }
   });
 
