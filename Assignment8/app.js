@@ -58,12 +58,24 @@ app.post('/', function(req, res){
   var input;
   input = req.body.url; //gets the link in the body of the request
   var output;
+  var objJSONLink;
 
   // find a link with the same input, and do not display "_id"
   var query = link.findOne({ 'inputLink': input }, {_id:0});
-
-  // select the two fields that will be shown to query
+  // select the three fields that will be shown to query
   query.select('inputLink outputLink clickedCount');
+
+  var getAllQuery= link.find({}, {_id:0}).sort({clickedCount:-1}).limit(10);
+  getAllQuery.select('outputLink');
+  getAllQuery.exec(function(err, result){
+    if(err){
+      console.log('couldnt get the queries');
+    }else{
+      //objJSONLink = eval("(function(){return" + result + ";})()");
+      objJSONLink=result;
+      console.log('printing.....'+objJSONLink);
+    }
+  });
 
   // execute the query and check for errors
   query.exec(function (err, result) {
@@ -71,7 +83,6 @@ app.post('/', function(req, res){
       //if error, or the result was not found(the input link was not in the DB)
       var extension = shortid.generate();
       var extensionOutput = "/" + extension;
-      console.log('added extension short id: '+ extensionOutput);
       //format the url like so http://www.localhost:3000/xxxxxx
       output = myUrl.concat(extensionOutput);
       //short to long
@@ -88,13 +99,13 @@ app.post('/', function(req, res){
           console.log('The link was not stored in the DB');
         }
       });
+      //res.render('result', {myUrl: output, link:objJSONLink});
       res.render('result', {myUrl: output});
     } else{
       //the link the user inputed, already exsists in the DB
-
+      
       //convert the result that the db provided into a json object
       var objJSON = eval("(function(){return" + result + ";})()");
-      res.render('result', {myUrl: objJSON.outputLink});
       var count = objJSON.clickedCount;
       count+=1;
       //for the inputed link, update(set) it clicked count up
@@ -102,23 +113,24 @@ app.post('/', function(req, res){
         if( err || !updated ){
           console.log("clicked count not updated");
         }
-      });
-    }
-  });
+      });//end of update
+      //res.render('result', {myUrl: objJSON.outputLink, link:objJSONLink});
+      res.render('result', {myUrl: objJSON.outputLink});
 
-/*  //check if output key already exists
-  client.exists(input, function(err, reply) {
-    if (reply === 1) {
-        //the url inputed exsists in redis
-        client.get(input, function(err, reply)
-        {
-          //ouput the result from the database
-          res.render('result', {myUrl: reply});
-        });
-    } else { */
-        //the url is new, so generate its short value
-        
-});
+      /*
+      to be placed in jade
+      
+                <!--
+                -each link in result
+          li #{link.outputLink}
+        -->
+      */
+
+
+
+    }//end of else loop
+  });//end of query exec
+});//end of post
 
 //display the actual link
 app.route('/:extension').all(function(req, res){
