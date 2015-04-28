@@ -119,7 +119,7 @@ var main = function (toDoObjects) {
 };
 function alerting(){
     alert("New item just got added, HORRAY!");
-};
+}
 $(document).ready(function () {
     $.getJSON("todos.json", function (toDoObjects) {
         main(toDoObjects);
