@@ -24,7 +24,6 @@ var ToDo = mongoose.model("ToDo", ToDoSchema);
 
 io.on('connection', function(socket){
 	socket.on('added', function(item, tag){
-		console.log('item added: ', item, tag);
 		io.sockets.emit('itemAdded', item, tag);
 	});
 });

@@ -99,6 +99,7 @@ var main = function (toDoObjects) {
                     });
                     var socket = io.connect('http://localhost:3000');
                     socket.emit('added', description, tags);
+                    //alert("New item just got added, HORRAY!");
                 });
 
                 $content = $("<div>").append($inputLabel)
@@ -116,13 +117,16 @@ var main = function (toDoObjects) {
 
     $(".tabs a:first-child span").trigger("click");
 };
-
+function alerting(){
+    alert("New item just got added, HORRAY!");
+};
 $(document).ready(function () {
     $.getJSON("todos.json", function (toDoObjects) {
         main(toDoObjects);
     });
 
     socket.on('itemAdded', function(item, tag){
+        alerting();
         $.getJSON("todos.json", function (toDoObjects) {
             main(toDoObjects);
         });
