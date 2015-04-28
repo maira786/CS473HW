@@ -67,10 +67,12 @@
         </div>
       </div>
     </footer>
-
     <script src="http://localhost:3000/socket.io/socket.io.js"></script>
 <script>
-  var socket = io();
+  var socket = io.connect('http://localhost:3000');
+  socket.on('connect', function(){
+    console.log("its connected");
+  });
 </script>
 
     <script src="http://code.jquery.com/jquery-2.0.3.min.js"></script>

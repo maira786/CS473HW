@@ -1,6 +1,5 @@
 var main = function (toDoObjects) {
     "use strict";
-    console.log("SANITY CHECK");
     var toDos = toDoObjects.map(function (toDo) {
           // we'll just return the description
           // of this toDoObject
@@ -98,6 +97,8 @@ var main = function (toDoObjects) {
                         $input.val("");
                         $tagInput.val("");
                     });
+                    var socket = io.connect('http://localhost:3000');
+                    socket.emit('added', description, tags);
                 });
 
                 $content = $("<div>").append($inputLabel)
@@ -120,4 +121,11 @@ $(document).ready(function () {
     $.getJSON("todos.json", function (toDoObjects) {
         main(toDoObjects);
     });
+
+    socket.on('itemAdded', function(item, tag){
+        $.getJSON("todos.json", function (toDoObjects) {
+            main(toDoObjects);
+        });
+    });
+
 });
