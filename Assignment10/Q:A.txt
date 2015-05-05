@@ -1,0 +1,8 @@
+1. Do you find the code to be simpler when using AngularJS? If so, how? If not, why?
+	It definitely feels a lot simpler, and mainly cleaner. There are few changes one needs to make to do simple tasks. Also its simpler to write code in Angular when there is a lot of repetitive html code. It almost feels like it can replace jquery at times depending on the functionality of the feature.
+
+2. Would a beginner to front-end development find the code to be simpler? Why or why not?
+	I would consider myself a beginner to front-end development and I actually found it simpler. Of course the syntax takes some getting used to but if someone is just a front end person they can follow the code. The only thing is for a backend person, they will need to understand the differences between modules, controllers, etc.
+
+3. How might the structure provided by AngularJS simplify building larger web applications?
+	The structure is very crucial in large web applications, and that's where Angular would best show its capabilities. Angular is great for binding all the components in an application and have them run efficiently assuming the MVC is properly used.
